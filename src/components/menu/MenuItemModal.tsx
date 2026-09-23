@@ -5,7 +5,8 @@ import Image from "next/image";
 import { MenuItem } from "@/lib/types";
 import { CATEGORIES, CUISINES } from "@/data/menu";
 import { DietaryBadge } from "./MenuCard";
-import { X, Utensils, ShoppingBag, Check } from "lucide-react";
+import { useCartStore } from "@/store/useCartStore";
+import { X, ShoppingBag, Check, Plus, Minus, MessageSquare } from "lucide-react";
 
 interface MenuItemModalProps {
   item: MenuItem | null;
@@ -13,7 +14,19 @@ interface MenuItemModalProps {
 }
 
 export default function MenuItemModal({ item, onClose }: MenuItemModalProps) {
+  const [qty, setQty] = useState(1);
+  const [notes, setNotes] = useState("");
   const [added, setAdded] = useState(false);
+
+  const addItem = useCartStore((state) => state.addItem);
+
+  useEffect(() => {
+    if (item) {
+      setQty(1);
+      setNotes("");
+      setAdded(false);
+    }
+  }, [item]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -34,10 +47,26 @@ export default function MenuItemModal({ item, onClose }: MenuItemModalProps) {
   const cuisine = CUISINES.find((c) => c.id === item.cuisineId);
   const category = CATEGORIES.find((cat) => cat.id === item.categoryId);
 
-  const handleAddToCartStub = () => {
+  const handleAddToCart = () => {
+    addItem(
+      {
+        menuItemId: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+      },
+      qty,
+      notes
+    );
+
     setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+    setTimeout(() => {
+      setAdded(false);
+      onClose();
+    }, 1200);
   };
+
+  const totalPrice = item.price * qty;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-in fade-in duration-200">
@@ -108,32 +137,72 @@ export default function MenuItemModal({ item, onClose }: MenuItemModalProps) {
             </div>
           </div>
 
+          {/* Quantity & Notes Controls */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/60">
+            {/* Quantity Stepper */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground/80">Quantity</label>
+              <div className="flex items-center justify-between px-4 py-2 rounded-xl bg-secondary border border-border">
+                <button
+                  type="button"
+                  onClick={() => setQty((prev) => Math.max(1, prev - 1))}
+                  className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="font-bold text-foreground text-sm font-mono">{qty}</span>
+                <button
+                  type="button"
+                  onClick={() => setQty((prev) => prev + 1)}
+                  className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Special Instructions Input */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground/80 flex items-center gap-1">
+                <MessageSquare className="w-3 h-3 text-accent" /> Special Instructions
+              </label>
+              <input
+                type="text"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="e.g., Extra spicy, sauce on side..."
+                className="w-full px-3 py-2 rounded-xl bg-secondary border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
+              />
+            </div>
+          </div>
+
           {/* Action Footer */}
           <div className="pt-4 border-t border-border flex items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] text-muted-foreground block">Total Price</span>
+              <span className="text-[11px] text-muted-foreground block">Total Amount</span>
               <span className="font-display text-2xl font-bold text-foreground">
-                ৳ {item.price.toLocaleString()}
+                ৳ {totalPrice.toLocaleString()}
               </span>
             </div>
 
             <button
-              onClick={handleAddToCartStub}
+              type="button"
+              onClick={handleAddToCart}
               className={`flex items-center gap-2.5 px-6 py-3.5 rounded-2xl font-semibold text-sm shadow-lg transition-all duration-300 ${
                 added
-                  ? "bg-emerald-600 text-white shadow-emerald-600/30"
+                  ? "bg-emerald-600 text-white shadow-emerald-600/30 scale-105"
                   : "bg-gradient-to-r from-primary to-primary-hover text-white shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02]"
               }`}
             >
               {added ? (
                 <>
                   <Check className="w-5 h-5 animate-bounce" />
-                  <span>Added to Order</span>
+                  <span>Added ({qty}x)</span>
                 </>
               ) : (
                 <>
                   <ShoppingBag className="w-5 h-5" />
-                  <span>Add to Cart</span>
+                  <span>Add to Cart — ৳ {totalPrice.toLocaleString()}</span>
                 </>
               )}
             </button>

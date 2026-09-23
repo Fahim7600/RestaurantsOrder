@@ -3,6 +3,8 @@ import { DM_Serif_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import CartDrawer from "@/components/cart/CartDrawer";
+import Toast from "@/components/ui/Toast";
 
 const displayFont = DM_Serif_Display({
   weight: "400",
@@ -29,10 +31,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${displayFont.variable} ${sansFont.variable}`}>
-      <body className="antialiased flex flex-col min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-white">
+      <body className="antialiased flex flex-col min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-white relative">
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+        <CartDrawer />
+        <Toast />
       </body>
     </html>
   );

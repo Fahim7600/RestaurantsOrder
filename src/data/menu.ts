@@ -35,7 +35,7 @@ export const MENU_ITEMS: MenuItem[] = [
     name: "Shorshe Ilish",
     description: "National pride Hilsa fish cooked in a sharp mustard gravy with green chillies and mustard oil.",
     price: 1250,
-    image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80",
+    image: "https://media.istockphoto.com/id/1720222845/photo/illish-or-hilsa-fish-cooking-with-mustard-seed-sauce-served-with-white-rice-closeup-on-the.jpg?s=2048x2048&w=is&k=20&c=xf_BgYxdtgoaTHC9CRsake1Bz0U_qrZ185OVW2rdZBg=",
     cuisineId: "bangladeshi",
     categoryId: "mains",
     dietaryTags: ["gluten-free", "nut-free"],

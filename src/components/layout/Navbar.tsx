@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useCartStore } from "@/store/useCartStore";
 import { Flame, Utensils, Menu, X, ShoppingBag, User } from "lucide-react";
 
 const navLinks = [
@@ -13,9 +14,19 @@ const navLinks = [
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  const openDrawer = useCartStore((state) => state.openDrawer);
+  const getTotalItems = useCartStore((state) => state.getTotalItems);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const totalItems = mounted ? getTotalItems() : 0;
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-background/90 border-b border-border/80 transition-all duration-300">
+    <header className="sticky top-0 z-40 backdrop-blur-md bg-background/90 border-b border-border/80 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -48,16 +59,18 @@ export default function Navbar() {
 
           {/* Desktop Action Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            <Link
-              href="/menu"
+            <button
+              onClick={openDrawer}
               className="p-2.5 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground transition-colors relative group"
-              title="Cart / Quick Order"
+              title="View Cart"
             >
               <ShoppingBag className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
-                0
-              </span>
-            </Link>
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-[11px] font-bold text-white flex items-center justify-center shadow-md animate-pulse">
+                  {totalItems}
+                </span>
+              )}
+            </button>
 
             <Link
               href="/book"
@@ -68,15 +81,29 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <div className="flex md:hidden items-center gap-3">
+          {/* Mobile Menu & Cart Actions */}
+          <div className="flex md:hidden items-center gap-2.5">
+            <button
+              onClick={openDrawer}
+              className="p-2 rounded-lg bg-secondary text-accent relative"
+              aria-label="View Cart"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+
             <Link
               href="/profile"
-              className="p-2 rounded-lg bg-secondary text-accent"
+              className="p-2 rounded-lg bg-secondary text-foreground"
               aria-label="Profile"
             >
               <User className="w-5 h-5" />
             </Link>
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg bg-secondary text-foreground hover:text-accent transition-colors"
@@ -88,7 +115,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer (Responsive Ready) */}
+      {/* Mobile Nav Links Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-border bg-card/95 backdrop-blur-lg px-4 pt-2 pb-6 space-y-3 animate-in slide-in-from-top-2">
           {navLinks.map((link) => (
