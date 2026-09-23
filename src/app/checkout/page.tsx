@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
-import Image from "next/image";
+import FoodImage from "@/components/shared/FoodImage";
 import {
   ShoppingBag,
   Utensils,
@@ -719,10 +719,11 @@ export default function CheckoutPage() {
                 {reconciledItems.map((item) => (
                   <li key={item.menuItemId} className="flex gap-3">
                     <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-secondary">
-                      <Image
+                      <FoodImage
                         src={item.image}
                         alt={item.name}
                         fill
+                        sizes="48px"
                         className="object-cover"
                       />
                     </div>

@@ -21,8 +21,15 @@ const sansFont = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "FLAME & SPICE | Artisanal Grill & Dining",
-  description: "Experience bold flavors, wood-fired culinary craft, and unforgettable hospitality.",
+  title: {
+    template: "%s | Flame & Spice",
+    default: "Flame & Spice | Artisanal Restaurant & Dining",
+  },
+  description:
+    "Experience bold Bangladeshi, Indian, and wood-fired artisanal delicacies with real-time kitchen status, takeaway ordering, and table reservations.",
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23C1272D'><path d='M12 2c0 3-2 5-2 8 0 2.2 1.8 4 4 4s4-1.8 4-4c0-3-2-5-2-8z'/></svg>",
+  },
 };
 
 export default function RootLayout({

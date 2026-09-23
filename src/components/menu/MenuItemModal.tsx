@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import FoodImage from "@/components/shared/FoodImage";
 import { MenuItem } from "@/lib/types";
 import { CATEGORIES, CUISINES } from "@/data/menu";
 import { DietaryBadge } from "./MenuCard";
@@ -89,7 +89,7 @@ export default function MenuItemModal({ item, onClose }: MenuItemModalProps) {
 
         {/* Modal Image */}
         <div className="relative w-full h-64 sm:h-80 bg-secondary shrink-0">
-          <Image
+          <FoodImage
             src={item.image}
             alt={item.name}
             fill

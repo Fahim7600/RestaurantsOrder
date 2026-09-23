@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import FoodImage from "@/components/shared/FoodImage";
 import { MenuItem, DietaryTag } from "@/lib/types";
 import { Leaf, Wheat, ShieldAlert, Flame, Utensils } from "lucide-react";
 import { CUISINES } from "@/data/menu";
@@ -53,7 +53,7 @@ export default function MenuCard({ item, onSelect }: MenuCardProps) {
     >
       {/* Image Container */}
       <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-secondary">
-        <Image
+        <FoodImage
           src={item.image}
           alt={item.name}
           fill

@@ -99,6 +99,18 @@ User account management, reservation overview, order history, and developer test
 
 ---
 
+## 🍽️ Landing Page, Food Loaders & Error Resilience
+
+Production home page, food-themed loading states, resilient images, and global error boundaries:
+
+- **Landing Page (`/`)**: Modular architecture featuring Hero with LCP priority photo, live `KitchenStatusBadge`, Cuisine Strip (`/menu?cuisine=<id>`), Signature Dishes (via `getFeaturedDishes()` in `src/data/featured.ts`), How It Works, Visit Us (`OPENING_HOURS` & phone link), and Closing CTA band.
+- **Resilient Image Component (`FoodImage`)**: Wraps `next/image` with zero layout shift, loading shimmer overlay, and onError charcoal fallback tile displaying dish name & utensils icon.
+- **Menu Query Presets**: Deep-linking support for `?cuisine=`, `?category=`, and `?dietary=` filters pre-selected on page load inside `<Suspense>`.
+- **Food-Themed Loading States**: `FoodLoader` animation ("Warming up the kitchen...") and `FoodSpinner` button variant respecting `prefers-reduced-motion`. Route-level `loading.tsx` skeletons for `/menu`, `/book`, `/profile`, `/checkout`, and `/order-confirmation`.
+- **Resilient Error Boundaries**: `not-found.tsx` ("This dish is off the menu") and `error.tsx` ("Something burned in the kitchen") maintaining continuous `Navbar` and `Footer` visibility.
+
+---
+
 ## 🛠️ Getting Started & Setup Instructions
 
 Follow these steps to run the application locally:

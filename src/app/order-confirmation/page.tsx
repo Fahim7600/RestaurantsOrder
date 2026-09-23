@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import FoodImage from "@/components/shared/FoodImage";
 import {
   CheckCircle2,
   Flame,
@@ -236,7 +236,7 @@ function OrderReceipt({ order }: { order: Order }) {
           {order.items.map((item) => (
             <li key={item.menuItemId} className="flex gap-3 py-3 first:pt-0 last:pb-0">
               <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-secondary">
-                <Image src={item.image} alt={item.name} fill className="object-cover" />
+                <FoodImage src={item.image} alt={item.name} fill sizes="48px" className="object-cover" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">{item.name}</p>

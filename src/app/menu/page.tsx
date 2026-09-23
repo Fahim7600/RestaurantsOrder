@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { MENU_ITEMS } from "@/data/menu";
+import { useState, useEffect, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { MENU_ITEMS, CUISINES, CATEGORIES } from "@/data/menu";
 import { MenuItem, DietaryTag } from "@/lib/types";
 import MenuCard from "@/components/menu/MenuCard";
 import MenuFilters from "@/components/menu/MenuFilters";
@@ -9,13 +10,56 @@ import MenuItemModal from "@/components/menu/MenuItemModal";
 import MenuEmptyState from "@/components/menu/MenuEmptyState";
 import { Filter, Flame, X, Utensils } from "lucide-react";
 
-export default function MenuPage() {
+const VALID_DIETARY_TAGS: DietaryTag[] = [
+  "vegetarian",
+  "vegan",
+  "gluten-free",
+  "nut-free",
+];
+
+function MenuContent() {
+  const searchParams = useSearchParams();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<DietaryTag[]>([]);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // Read URL query parameter presets on mount
+  useEffect(() => {
+    const cuisineParam = searchParams.get("cuisine");
+    const categoryParam = searchParams.get("category");
+    const dietaryParam = searchParams.get("dietary");
+
+    if (cuisineParam) {
+      const validCuisineIds = new Set(CUISINES.map((c) => c.id));
+      const requested = cuisineParam.split(",").filter((id) => validCuisineIds.has(id));
+      if (requested.length > 0) {
+        setSelectedCuisines(requested);
+      }
+    }
+
+    if (categoryParam) {
+      const validCatIds = new Set(CATEGORIES.map((c) => c.id));
+      const requested = categoryParam.split(",").filter((id) => validCatIds.has(id));
+      if (requested.length > 0) {
+        setSelectedCategories(requested);
+      }
+    }
+
+    if (dietaryParam) {
+      const requested = dietaryParam
+        .split(",")
+        .filter((tag): tag is DietaryTag =>
+          VALID_DIETARY_TAGS.includes(tag as DietaryTag)
+        );
+      if (requested.length > 0) {
+        setSelectedDietary(requested);
+      }
+    }
+  }, [searchParams]);
 
   const handleClearAll = () => {
     setSearchQuery("");
@@ -80,16 +124,16 @@ export default function MenuPage() {
           </p>
         </div>
 
-        {/* Mobile Filter Toggle */}
-        <div className="flex lg:hidden items-center gap-3">
+        {/* Mobile Filter Toggle Button */}
+        <div className="md:hidden">
           <button
             onClick={() => setMobileFiltersOpen(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-semibold text-sm border border-border transition-colors relative"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-card border border-border text-foreground font-semibold text-sm shadow-sm hover:border-primary/50 transition-colors"
           >
-            <Filter className="w-4 h-4 text-accent" />
-            <span>Filters</span>
+            <Filter className="w-4 h-4 text-primary" />
+            <span>Filter Menu</span>
             {activeFilterCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
+              <span className="ml-1 px-2 py-0.5 rounded-full bg-primary text-white text-xs font-bold">
                 {activeFilterCount}
               </span>
             )}
@@ -97,11 +141,11 @@ export default function MenuPage() {
         </div>
       </div>
 
-      {/* Main Content Layout (Sidebar + Grid) */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      {/* Main Content Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Desktop Sidebar Filters */}
-        <aside className="hidden lg:block lg:col-span-1 space-y-6 sticky top-28 h-fit">
-          <div className="p-6 rounded-2xl bg-card border border-border/80 shadow-sm">
+        <aside className="hidden lg:block lg:col-span-3 sticky top-24">
+          <div className="p-6 rounded-2xl bg-card border border-border space-y-6 shadow-sm">
             <MenuFilters
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
@@ -117,30 +161,147 @@ export default function MenuPage() {
           </div>
         </aside>
 
-        {/* Menu Grid Section */}
-        <main className="lg:col-span-3 space-y-6">
-          {/* Results Bar */}
-          <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
-            <span className="font-semibold text-foreground flex items-center gap-1.5">
-              <Utensils className="w-3.5 h-3.5 text-accent" />
-              Showing <span className="text-accent">{filteredItems.length}</span> of{" "}
-              {MENU_ITEMS.length} dishes
-            </span>
-            {activeFilterCount > 0 && (
-              <span>
-                Filtered by {activeFilterCount} criteria
+        {/* Mobile Slide-Over Filter Panel */}
+        {mobileFiltersOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-xs bg-card h-full p-6 space-y-6 overflow-y-auto border-l border-border shadow-2xl flex flex-col justify-between">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-border pb-4">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-5 h-5 text-primary" />
+                    <h2 className="font-display text-lg font-bold text-foreground">
+                      Filters
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => setMobileFiltersOpen(false)}
+                    className="p-1.5 rounded-lg bg-secondary text-muted-foreground hover:text-foreground"
+                    aria-label="Close filters"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <MenuFilters
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  selectedCuisines={selectedCuisines}
+                  setSelectedCuisines={setSelectedCuisines}
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  selectedDietary={selectedDietary}
+                  setSelectedDietary={setSelectedDietary}
+                  onClearAll={handleClearAll}
+                  totalResults={filteredItems.length}
+                />
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <button
+                  onClick={() => setMobileFiltersOpen(false)}
+                  className="w-full py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-md"
+                >
+                  Show {filteredItems.length} Dishes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Menu Items Grid Column */}
+        <main className="lg:col-span-9 space-y-6">
+          {/* Active Filter Chips Bar */}
+          {activeFilterCount > 0 && (
+            <div className="flex flex-wrap items-center gap-2 p-3.5 rounded-xl bg-secondary/40 border border-border">
+              <span className="text-xs font-semibold text-muted-foreground mr-1">
+                Active filters:
               </span>
-            )}
+
+              {searchQuery && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-xs text-foreground font-medium">
+                  &quot;{searchQuery}&quot;
+                  <X
+                    className="w-3.5 h-3.5 text-muted-foreground hover:text-rose-400 cursor-pointer"
+                    onClick={() => setSearchQuery("")}
+                  />
+                </span>
+              )}
+
+              {selectedCuisines.map((id) => {
+                const name = CUISINES.find((c) => c.id === id)?.name || id;
+                return (
+                  <span
+                    key={id}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-xs text-accent font-medium"
+                  >
+                    {name}
+                    <X
+                      className="w-3.5 h-3.5 text-muted-foreground hover:text-rose-400 cursor-pointer"
+                      onClick={() =>
+                        setSelectedCuisines(selectedCuisines.filter((c) => c !== id))
+                      }
+                    />
+                  </span>
+                );
+              })}
+
+              {selectedCategories.map((id) => {
+                const name = CATEGORIES.find((c) => c.id === id)?.name || id;
+                return (
+                  <span
+                    key={id}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-xs text-foreground font-medium"
+                  >
+                    {name}
+                    <X
+                      className="w-3.5 h-3.5 text-muted-foreground hover:text-rose-400 cursor-pointer"
+                      onClick={() =>
+                        setSelectedCategories(
+                          selectedCategories.filter((c) => c !== id)
+                        )
+                      }
+                    />
+                  </span>
+                );
+              })}
+
+              {selectedDietary.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-xs text-emerald-400 font-medium uppercase"
+                >
+                  {tag}
+                  <X
+                    className="w-3.5 h-3.5 text-muted-foreground hover:text-rose-400 cursor-pointer"
+                    onClick={() =>
+                      setSelectedDietary(selectedDietary.filter((t) => t !== tag))
+                    }
+                  />
+                </span>
+              ))}
+
+              <button
+                onClick={handleClearAll}
+                className="text-xs font-bold text-primary hover:underline ml-auto pl-2"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+
+          {/* Results Count */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground font-medium px-1">
+            <span>Showing {filteredItems.length} of {MENU_ITEMS.length} dishes</span>
           </div>
 
           {/* Grid or Empty State */}
           {filteredItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredItems.map((item) => (
                 <MenuCard
                   key={item.id}
                   item={item}
-                  onSelect={(selected) => setSelectedItem(selected)}
+                  onSelect={(item) => setSelectedItem(item)}
                 />
               ))}
             </div>
@@ -150,54 +311,37 @@ export default function MenuPage() {
         </main>
       </div>
 
-      {/* Mobile Slide-Over Drawer */}
-      {mobileFiltersOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden animate-in fade-in duration-200">
-          <div
-            onClick={() => setMobileFiltersOpen(false)}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm"
-          />
-          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-card border-l border-border p-6 shadow-2xl overflow-y-auto z-10 flex flex-col space-y-6">
-            <div className="flex items-center justify-between border-b border-border pb-4">
-              <h3 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
-                <Filter className="w-4 h-4 text-accent" /> Filter Dishes
-              </h3>
-              <button
-                onClick={() => setMobileFiltersOpen(false)}
-                className="p-1 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <MenuFilters
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              selectedCuisines={selectedCuisines}
-              setSelectedCuisines={setSelectedCuisines}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-              selectedDietary={selectedDietary}
-              setSelectedDietary={setSelectedDietary}
-              onClearAll={handleClearAll}
-              totalResults={filteredItems.length}
-            />
-
-            <button
-              onClick={() => setMobileFiltersOpen(false)}
-              className="w-full py-3 rounded-xl bg-primary text-white font-semibold text-sm shadow-md mt-auto"
-            >
-              Apply Filters ({filteredItems.length} dishes)
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Item Detail Modal */}
-      <MenuItemModal
-        item={selectedItem}
-        onClose={() => setSelectedItem(null)}
-      />
+      {selectedItem && (
+        <MenuItemModal
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
     </div>
+  );
+}
+
+function MenuSkeleton() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-pulse">
+      <div className="h-16 bg-card rounded-2xl border border-border" />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="hidden lg:block lg:col-span-3 h-96 bg-card rounded-2xl border border-border" />
+        <div className="lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-64 bg-card rounded-2xl border border-border" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function MenuPage() {
+  return (
+    <Suspense fallback={<MenuSkeleton />}>
+      <MenuContent />
+    </Suspense>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import FoodImage from "@/components/shared/FoodImage";
 import Link from "next/link";
 import { useCartStore } from "@/store/useCartStore";
 import {
@@ -121,7 +121,7 @@ export default function CartDrawer() {
                   <div className="flex gap-3">
                     {/* Item Image */}
                     <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-secondary shrink-0 border border-border">
-                      <Image
+                      <FoodImage
                         src={item.image}
                         alt={item.name}
                         fill

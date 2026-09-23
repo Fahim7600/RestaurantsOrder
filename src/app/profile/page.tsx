@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import FoodImage from "@/components/shared/FoodImage";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -710,15 +710,12 @@ function ProfileContent() {
                               className="flex items-center gap-3 p-2 rounded-xl bg-background/50 border border-border/40"
                             >
                               <div className="w-10 h-10 rounded-lg overflow-hidden bg-secondary shrink-0 relative">
-                                <Image
+                                <FoodImage
                                   src={item.image}
                                   alt={item.name}
                                   fill
+                                  sizes="40px"
                                   className="object-cover"
-                                  onError={(e) => {
-                                    // Fallback if image URL fails
-                                    (e.target as HTMLElement).style.display = "none";
-                                  }}
                                 />
                               </div>
                               <div className="flex-1 min-w-0">
