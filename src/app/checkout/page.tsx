@@ -201,6 +201,8 @@ export default function CheckoutPage() {
 
   const rawItems = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clearCart);
+  const groupSession = useCartStore((s) => s.groupSession);
+  const getPerMemberBreakdown = useCartStore((s) => s.getPerMemberBreakdown);
   const { bookings } = useBookingStore();
   const { user, updateUser } = useProfileStore();
   const placeOrder = useOrderStore((s) => s.placeOrder);
@@ -728,6 +730,11 @@ export default function CheckoutPage() {
                       <p className="text-xs text-muted-foreground">
                         {formatBDT(item.price)} × {item.qty}
                       </p>
+                      {item.addedBy && (
+                        <p className="text-[10px] text-accent font-medium">
+                          Added by {item.addedBy}
+                        </p>
+                      )}
                       {item.notes && (
                         <p className="text-[11px] text-muted-foreground/70 italic truncate mt-0.5">
                           Note: {item.notes}
@@ -740,6 +747,23 @@ export default function CheckoutPage() {
                   </li>
                 ))}
               </ul>
+
+              {/* Group Order Bill Breakdown */}
+              {groupSession && (
+                <div className="p-3 rounded-2xl bg-accent/10 border border-accent/30 space-y-1.5 text-xs">
+                  <div className="font-bold text-accent text-[11px] uppercase tracking-wider flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5" /> Group Order ({groupSession.code})
+                  </div>
+                  <div className="space-y-1 divide-y divide-border/40 text-[11px]">
+                    {Object.entries(getPerMemberBreakdown()).map(([diner, sum]) => (
+                      <div key={diner} className="pt-1 flex justify-between text-muted-foreground">
+                        <span>{diner}</span>
+                        <span className="font-bold text-foreground">{formatBDT(sum)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Totals */}
               <div className="border-t border-border pt-3 space-y-2 text-sm">
