@@ -81,7 +81,8 @@ export function getDerivedOrderStatus(
     const parts = order.estimatedReadyTo.trim().split(" ");
     if (parts.length === 2) {
       const [timeStr, period] = parts;
-      let [h, m] = timeStr.split(":").map(Number);
+      let h = Number(timeStr.split(":")[0]);
+      const m = Number(timeStr.split(":")[1]);
       if (period.toUpperCase() === "PM" && h < 12) h += 12;
       if (period.toUpperCase() === "AM" && h === 12) h = 0;
 

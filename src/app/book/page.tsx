@@ -69,7 +69,7 @@ export default function BookPage() {
     message: string;
   } | null>(null);
 
-  const isSubmittingRef = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { bookings, released, confirmBooking } = useBookingStore();
   const { user, updateUser } = useProfileStore();
@@ -184,8 +184,8 @@ export default function BookPage() {
   };
 
   const onSubmit = async (data: BookingDetailsInput) => {
-    if (isSubmittingRef.current || !selectedTime) return;
-    isSubmittingRef.current = true;
+    if (isSubmitting || !selectedTime) return;
+    setIsSubmitting(true);
     setSubmitError(null);
 
     // Simulate 600ms processing delay with spinner
@@ -199,7 +199,7 @@ export default function BookPage() {
       phone: data.phone,
     });
 
-    isSubmittingRef.current = false;
+    setIsSubmitting(false);
 
     if (!result.ok) {
       if (result.reason === "PAST" || result.reason === "TOO_LATE") {
@@ -569,10 +569,10 @@ export default function BookPage() {
 
                 <button
                   type="submit"
-                  disabled={!selectedTime || isSubmittingRef.current}
+                  disabled={!selectedTime || isSubmitting}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-primary to-primary-hover disabled:opacity-50 text-white font-semibold text-sm shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all flex items-center justify-center gap-2"
                 >
-                  {isSubmittingRef.current ? (
+                  {isSubmitting ? (
                     <>
                       <Flame className="w-5 h-5 text-white animate-spin" />
                       <span>Confirming Table...</span>

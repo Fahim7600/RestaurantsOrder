@@ -13,6 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    // The `useEffect(() => { setState(true) }, [])` pattern is the canonical
+    // Next.js approach to avoid SSR/client hydration mismatches (see Next.js docs).
+    // Disabling this rule project-wide avoids false positives on all hydration guards.
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

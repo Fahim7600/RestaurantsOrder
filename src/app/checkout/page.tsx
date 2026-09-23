@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
@@ -198,8 +198,6 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
-  const submitLock = useRef(false);
-  const firstErrorRef = useRef<HTMLElement | null>(null);
 
   const rawItems = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clearCart);
@@ -234,9 +232,8 @@ export default function CheckoutPage() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
-    setError,
     formState: { errors },
   } = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
@@ -253,16 +250,19 @@ export default function CheckoutPage() {
     },
   });
 
+  // useWatch at component level — avoids calling watch() inside JSX callbacks (react-hooks/incompatible-library)
+  const orderType = useWatch({ control, name: "orderType" });
+  const dineInOption = useWatch({ control, name: "dineInOption" });
+  const pickupMode = useWatch({ control, name: "pickupMode" });
+  const scheduledTime = useWatch({ control, name: "scheduledTime" });
+  const noteValue = useWatch({ control, name: "note" }) ?? "";
+  const selectedBookingId = useWatch({ control, name: "selectedBookingId" });
+
   // Prefill contact from profile
   useEffect(() => {
     if (user.name) setValue("name", user.name);
     if (user.phone) setValue("phone", user.phone);
   }, [user, setValue]);
-
-  const orderType = watch("orderType");
-  const dineInOption = watch("dineInOption");
-  const pickupMode = watch("pickupMode");
-  const noteValue = watch("note") ?? "";
 
   // When switching dine-in option, clear the other value
   const handleDineInOptionChange = useCallback(
@@ -280,19 +280,16 @@ export default function CheckoutPage() {
   );
 
   const eta = useMemo(() => {
-    const scheduledTime = watch("scheduledTime");
     return computeETA(
       orderType === "takeaway" ? (pickupMode ?? "asap") : "asap",
       scheduledTime,
       kitchenStatus,
       new Date()
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderType, pickupMode, watch("scheduledTime"), kitchenStatus]);
+  }, [orderType, pickupMode, scheduledTime, kitchenStatus]);
 
   const onSubmit = async (data: CheckoutForm) => {
-    if (submitLock.current || submitting) return;
-    submitLock.current = true;
+    if (submitting) return;
     setSubmitting(true);
     setStorageError(null);
 
@@ -340,7 +337,6 @@ export default function CheckoutPage() {
     });
 
     setSubmitting(false);
-    submitLock.current = false;
 
     if (!result.ok) {
       if (result.reason === "STORAGE_ERROR") {
@@ -485,7 +481,7 @@ export default function CheckoutPage() {
                     ) : (
                       <div className="space-y-2">
                         {eligibleBookings.map(({ booking, eligible, disabledReason }) => {
-                          const selected = watch("selectedBookingId") === booking.id;
+                          const selected = selectedBookingId === booking.id;
                           return (
                             <button
                               key={booking.id}

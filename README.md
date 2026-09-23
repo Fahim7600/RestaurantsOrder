@@ -146,6 +146,38 @@ npm run build
 
 ---
 
+## 📱 Mobile Navigation, Accessibility & Quality
+
+Final build pass: mobile bottom tab bar, responsive audit, accessibility, quality gates.
+
+### Mobile Navigation
+- **Bottom tab bar** (`MobileTabBar`) below `md` breakpoint with 5 tabs: Home, Menu, Book, Cart (opens cart drawer with live item badge), Profile (offer dot when a table offer is pending).
+- Tab bar respects safe areas via `env(safe-area-inset-bottom)` and the `viewport-fit=cover` export in `layout.tsx`.
+- Touch targets ≥ 44 px. Content and Footer have global `pb-[60px] md:pb-0` so they are never hidden behind the bar.
+- Tab bar hides while a text input is focused (on-screen keyboard) and restores on blur.
+- Hamburger / mobile dropdown removed; the top navbar on mobile shows logo + "Book" CTA only.
+
+### Accessibility
+- **Visible focus rings**: `:focus-visible` global rule uses `--accent` colour so keyboard users always see where they are; mouse users are unaffected.
+- **Skip to main content**: always-present off-screen link visible on first Tab keypress.
+- **ARIA**: all icon-only interactive elements have `aria-label`; `aria-current="page"` on active tab; badge counts conveyed via `aria-label`.
+- **Reduced motion**: `@media (prefers-reduced-motion: reduce)` collapses all animations and transitions globally.
+- **Semantic HTML**: `<header>`, `<nav aria-label="…">`, `<main id="main-content">`, `<footer>` landmarks on every page.
+
+### Quality Gates
+- `npm run lint` — 0 ESLint errors.
+- `npx tsc --noEmit` — 0 TypeScript errors.
+- `npm test` — all unit tests pass.
+- `npm run build` — production build compiles cleanly.
+
+---
+
+## 📄 Design Decisions
+
+See [`DECISIONS.md`](./DECISIONS.md) for the reasoning behind framework choice, state management architecture, simulated features, and accessibility/mobile navigation decisions.
+
+---
+
 ## 🚢 Deployment
 
 This application is designed and configured for zero-config deployment on **Vercel**.

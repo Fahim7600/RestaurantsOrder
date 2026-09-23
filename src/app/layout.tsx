@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Serif_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
 import Toast from "@/components/ui/Toast";
 import StoreSync from "@/components/layout/StoreSync";
+import MobileTabBar from "@/components/layout/MobileTabBar";
 
 const displayFont = DM_Serif_Display({
   weight: "400",
@@ -19,6 +20,13 @@ const sansFont = Plus_Jakarta_Sans({
   variable: "--font-sans",
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#12100e",
+};
 
 export const metadata: Metadata = {
   title: {
@@ -41,9 +49,15 @@ export default function RootLayout({
     <html lang="en" className={`${displayFont.variable} ${sansFont.variable}`}>
       <body className="antialiased flex flex-col min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-white relative">
         <StoreSync />
+        {/* Skip-to-content for keyboard / screen-reader users */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <Navbar />
-        <main className="flex-1">{children}</main>
+        {/* pb-[calc(60px+env(safe-area-inset-bottom))] reserves space for the mobile tab bar */}
+        <main id="main-content" className="flex-1 pb-[60px] md:pb-0">{children}</main>
         <Footer />
+        <MobileTabBar />
         <CartDrawer />
         <Toast />
       </body>
