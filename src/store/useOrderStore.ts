@@ -47,6 +47,7 @@ export interface Order {
   kitchen: KitchenSnapshot;
   estimatedReadyFrom: string; // "7:35 PM"
   estimatedReadyTo: string;   // "7:45 PM"
+  isSample?: boolean;
 }
 
 export type OrderFailureReason =
@@ -87,6 +88,7 @@ interface OrderState {
   getOrder: (id: string) => Order | undefined;
   getLatestOrder: () => Order | undefined;
   resetOrders: () => void;
+  loadSampleOrders: (sampleOrders: Order[]) => void;
 }
 
 export const useOrderStore = create<OrderState>()(
@@ -176,6 +178,18 @@ export const useOrderStore = create<OrderState>()(
       getLatestOrder: () => get().orders[0],
 
       resetOrders: () => set({ orders: [] }),
+
+      loadSampleOrders: (sampleOrders) => {
+        set((state) => {
+          // Remove existing sample orders (idempotent replacement)
+          const nonSampleOrders = state.orders.filter(
+            (o) => !o.isSample && !o.id.startsWith("FS-SAMPLE-")
+          );
+          return {
+            orders: [...sampleOrders, ...nonSampleOrders],
+          };
+        });
+      },
     }),
     {
       name: "flame-spice-orders",

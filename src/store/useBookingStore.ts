@@ -58,6 +58,7 @@ interface BookingState {
 
   simulateSeatsOpening: (date: string, time: string, seatsToRelease?: number) => { promoted: number };
   resetBookings: () => void;
+  loadSampleBookings: (sampleBookings: Booking[]) => void;
   hasActiveOffers: () => boolean;
 }
 
@@ -359,6 +360,18 @@ export const useBookingStore = create<BookingState>()(
       },
 
       resetBookings: () => set({ bookings: [], released: {} }),
+
+      loadSampleBookings: (sampleBookings) => {
+        set((state) => {
+          // Remove existing sample bookings (idempotent replacement)
+          const nonSampleBookings = state.bookings.filter(
+            (b) => !b.isSample && !b.id.startsWith("FS-SAMPLE-")
+          );
+          return {
+            bookings: [...sampleBookings, ...nonSampleBookings],
+          };
+        });
+      },
 
       hasActiveOffers: () => {
         return get().bookings.some((b) => b.status === "offered");

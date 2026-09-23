@@ -85,6 +85,20 @@ Full front-end checkout and order management (`/checkout`, `/order-confirmation`
 
 ---
 
+## 👤 Profile & Demo Tools (`/profile`)
+
+User account management, reservation overview, order history, and developer testing tools:
+
+- **Tab Navigation**: URL query parameter synchronization (`?tab=details|bookings|orders`) with `<Suspense>` wrapper and DOM persistence.
+- **Details Tab**: Contact profile management (name, email, phone) with Zod validation.
+- **Bookings Tab**: Categorized view of Upcoming (confirmed future), Priority Waitlist & Offers, and Past (completed/cancelled/expired) reservations. Supports cancellation, waitlist management, and table offer confirmations.
+- **Orders Tab**: Searchable order history with type chips, derived real-time status (`In progress` vs `Completed`), expandable snapshot dish breakdown, and kitchen demand context.
+- **🧪 Demo Tools**:
+  - **Load sample history**: Idempotent generator adding 4 sample orders and 5 sample reservations tagged with `isSample` and `FS-SAMPLE-` prefixes without mutating real data.
+  - **Reset demo data**: Destructive reset (`resetAllData()`) clearing cart, bookings, waitlist, orders, profile, and seat release state instantly across all Zustand stores.
+
+---
+
 ## 🛠️ Getting Started & Setup Instructions
 
 Follow these steps to run the application locally:

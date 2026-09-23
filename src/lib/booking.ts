@@ -16,6 +16,7 @@ export interface Booking {
   joinedWaitlistAt?: string;
   offeredAt?: string;
   cancelledAt?: string;
+  isSample?: boolean;
 }
 
 export type SlotState =
