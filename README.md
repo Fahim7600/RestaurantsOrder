@@ -4,6 +4,19 @@ A modern, high-performance restaurant web application built for a hiring technic
 
 ---
 
+## 📸 Application Screenshots
+
+Save your screenshots in the [`public/screenshots/`](file:///e:/RestauarntTask/public/screenshots/) directory and link them here:
+
+| Landing Page | Menu & Customizations |
+| :---: | :---: |
+| ![Landing Page](./public/screenshots/home.png) | ![Menu Page](./public/screenshots/menu.png) |
+
+| Table Booking & Waitlist | Group Order & Checkout |
+| :---: | :---: |
+| ![Table Booking](./public/screenshots/booking.png) | ![Checkout & Group Order](./public/screenshots/checkout.png) |
+
+
 ## 🚀 Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (App Router, TypeScript)
