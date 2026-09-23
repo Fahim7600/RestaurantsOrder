@@ -1,6 +1,4 @@
-"use client";
-
-import { OPENING_HOURS, LARGE_GROUP_PHONE } from "@/lib/config";
+import { OPENING_HOURS, LARGE_GROUP_PHONE, RESTAURANT_ADDRESS } from "@/lib/config";
 import { MapPin, Clock, Phone, Utensils } from "lucide-react";
 
 export default function VisitUs() {
@@ -27,8 +25,7 @@ export default function VisitUs() {
             </div>
             <h3 className="text-sm font-bold font-serif text-foreground">Location</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              House 42, Road 11, Banani<br />
-              Dhaka-1213, Bangladesh
+              {RESTAURANT_ADDRESS}
             </p>
           </div>
 

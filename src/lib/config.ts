@@ -14,4 +14,6 @@ export const OPENING_HOURS = {
 
 export const TABLE_COUNT = 20;
 export const MAX_QTY_PER_ITEM = 20;
-export const LARGE_GROUP_PHONE = "+880 1700-000000";
+export const RESTAURANT_ADDRESS = "House40/42,Road:5,Sector:1,Block:E,AftabNagar,Dhaka, Bangladesh";
+export const RESTAURANT_PHONE = "01330044020";
+export const LARGE_GROUP_PHONE = "01330044020";

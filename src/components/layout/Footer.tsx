@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Flame, MapPin, Phone, Clock, Globe, Share2, Heart } from "lucide-react";
-import { OPENING_HOURS } from "@/lib/config";
+import { OPENING_HOURS, RESTAURANT_ADDRESS, RESTAURANT_PHONE } from "@/lib/config";
 
 export default function Footer() {
   return (
@@ -90,11 +90,13 @@ export default function Footer() {
             <ul className="space-y-2.5 text-xs text-muted-foreground">
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>452 Culinary Avenue, Gourmet District, NY 10012</span>
+                <span>{RESTAURANT_ADDRESS}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-primary shrink-0" />
-                <span>+1 (555) 839-4720</span>
+                <a href={`tel:${RESTAURANT_PHONE}`} className="hover:text-foreground transition-colors">
+                  {RESTAURANT_PHONE}
+                </a>
               </li>
             </ul>
           </div>
