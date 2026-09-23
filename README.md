@@ -1,5 +1,7 @@
 # Flame & Spice — Artisanal Restaurant Web Application
 
+> 🌐 **Live Demo**: [https://restaurants-order-seven.vercel.app/](https://restaurants-order-seven.vercel.app/)
+
 A modern, high-performance restaurant web application built for a hiring technical assessment. Featuring wood-fired artisanal aesthetics, a bold spicy design system, full responsive layout, menu browsing, table reservations, state management, and Vitest test suite.
 
 ---
@@ -191,7 +193,7 @@ See [`DECISIONS.md`](./DECISIONS.md) for the reasoning behind framework choice, 
 
 ## 🚢 Deployment
 
-This application is designed and configured for zero-config deployment on **Vercel**.
+This application is deployed live on **Vercel**:
 
 - **Deployment Target**: Vercel Platform
-- **Live Preview URL**: `TBD` (Will be updated upon deployment)
+- **Live Preview URL**: [https://restaurants-order-seven.vercel.app/](https://restaurants-order-seven.vercel.app/)
