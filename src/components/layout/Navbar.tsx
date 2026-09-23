@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCartStore } from "@/store/useCartStore";
 import { useBookingStore } from "@/store/useBookingStore";
 import { Flame, Utensils, Menu, X, ShoppingBag, User } from "lucide-react";
+import KitchenStatusBadge from "@/components/layout/KitchenStatusBadge";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -63,8 +64,15 @@ export default function Navbar() {
             ))}
           </nav>
 
+
           {/* Desktop Action Buttons */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
+            {/* Kitchen status badge — live, informational only */}
+            <KitchenStatusBadge />
+
+            {/* Divider */}
+            <span className="w-px h-6 bg-border/60" aria-hidden="true" />
+
             <button
               onClick={openDrawer}
               className="p-2.5 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground transition-colors relative group"

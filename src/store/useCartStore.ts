@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { safeJSONStorage } from "@/lib/storage";
+import { MAX_QTY_PER_ITEM } from "@/lib/config";
 
 export interface CartItem {
   menuItemId: string;
@@ -62,10 +63,26 @@ export const useCartStore = create<CartState>()(
         let updatedItems: CartItem[];
 
         if (existingIndex > -1) {
+          const currentQty = currentItems[existingIndex].qty;
+          const newQty = currentQty + qty;
+
+          if (currentQty >= MAX_QTY_PER_ITEM) {
+            // Already at max — fire a toast and don't add
+            set({
+              toast: {
+                id: Date.now().toString(),
+                message: `Max ${MAX_QTY_PER_ITEM} per dish`,
+                dishName: newItem.name,
+              },
+            });
+            return;
+          }
+
+          const clampedQty = Math.min(newQty, MAX_QTY_PER_ITEM);
           updatedItems = [...currentItems];
           updatedItems[existingIndex] = {
             ...updatedItems[existingIndex],
-            qty: updatedItems[existingIndex].qty + qty,
+            qty: clampedQty,
             notes: notes ? notes : updatedItems[existingIndex].notes,
           };
         } else {
@@ -76,7 +93,7 @@ export const useCartStore = create<CartState>()(
               name: newItem.name,
               price: newItem.price,
               image: newItem.image,
-              qty: Math.max(1, qty),
+              qty: Math.min(Math.max(1, qty), MAX_QTY_PER_ITEM),
               notes: notes || undefined,
             },
           ];
@@ -103,9 +120,10 @@ export const useCartStore = create<CartState>()(
           get().removeItem(menuItemId);
           return;
         }
+        const clamped = Math.min(qty, MAX_QTY_PER_ITEM);
         set((state) => ({
           items: state.items.map((i) =>
-            i.menuItemId === menuItemId ? { ...i, qty } : i
+            i.menuItemId === menuItemId ? { ...i, qty: clamped } : i
           ),
         }));
       },

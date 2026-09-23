@@ -57,6 +57,34 @@ Each waitlisted card in *"Your Reservations"* includes a **"Demo: Simulate table
 
 ---
 
+## 🍳 Kitchen Status (Simulated Demand Engine)
+
+A passive real-time indicator informing customers of kitchen wait times based on simulated demand:
+
+- **Demand Tiers**:
+  - 🟢 **Calm** (10–15 min wait): 11:00, 15:00–17:59
+  - 🙂 **Steady** (20–25 min wait): 14:00, 18:00
+  - 🟡 **Busy** (30–35 min wait): 12:00, 22:00
+  - 🟠 **Rush** (45–50 min wait): 13:00, 19:00, 21:00
+  - 🔴 **Full House** (60+ min wait): 20:00
+  - ⚪ **Closed**: Outside 11:00 AM – 11:00 PM
+- **Location**: Top navigation bar badge, Menu header indicator, and Order Confirmation receipt.
+
+---
+
+## 🛒 Checkout & Order Confirmation Flow
+
+Full front-end checkout and order management (`/checkout`, `/order-confirmation`):
+
+- **Payment Mode**: Clear "Pay at restaurant" notification — no online payment required.
+- **Order Types**:
+  - **Dine-In**: Select today's active booking (start within last 3h) or input table number (1–20).
+  - **Takeaway**: ASAP pickup with live kitchen ETA or scheduled 15-minute slot.
+- **Cart Reconciliation**: Verifies prices, menu availability, and enforces `MAX_QTY_PER_ITEM` (20) before checkout.
+- **Storage Safety**: Atomic persistence via `useOrderStore` with rollback and error recovery.
+
+---
+
 ## 🛠️ Getting Started & Setup Instructions
 
 Follow these steps to run the application locally:

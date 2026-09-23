@@ -32,3 +32,36 @@ export const bookingDetailsSchema = z.object({
 });
 
 export type BookingDetailsInput = z.infer<typeof bookingDetailsSchema>;
+
+/** Table number: integer 1..TABLE_COUNT */
+export const tableNumberSchema = z
+  .number({ message: "Table number must be a whole number." })
+  .int({ message: "Table number must be a whole number, no decimals." })
+  .min(1, { message: "Table number must be at least 1." })
+  .max(20, { message: "Table number cannot exceed 20." });
+
+/** Raw string form of table number for HTML input */
+export const tableNumberStringSchema = z
+  .string()
+  .min(1, { message: "Table number is required." })
+  .transform((val) => {
+    const n = Number(val);
+    if (!Number.isFinite(n)) throw new Error("Must be a number.");
+    return n;
+  })
+  .pipe(tableNumberSchema);
+
+/** Order note: optional, max 200 chars */
+export const orderNoteSchema = z
+  .string()
+  .max(200, { message: "Note cannot exceed 200 characters." })
+  .optional()
+  .or(z.literal(""));
+
+/** Contact details for checkout: phone required for takeaway, optional for dine-in */
+export const checkoutContactSchema = z.object({
+  name: nameSchema,
+  phone: z.string().optional(),
+});
+
+export type CheckoutContactInput = z.infer<typeof checkoutContactSchema>;

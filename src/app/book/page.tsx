@@ -26,6 +26,7 @@ import BookingCard from "@/components/booking/BookingCard";
 import WaitlistModal from "@/components/booking/WaitlistModal";
 import LargeGroupCard from "@/components/booking/LargeGroupCard";
 import OfferBanner from "@/components/booking/OfferBanner";
+import KitchenStatusPanel from "@/components/booking/KitchenStatusPanel";
 import {
   Calendar,
   Clock,
@@ -636,6 +637,9 @@ export default function BookPage() {
               </p>
             </div>
           </div>
+
+          {/* Kitchen Status — live, informational only */}
+          <KitchenStatusPanel />
         </aside>
       </div>
 
