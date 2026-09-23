@@ -6,8 +6,6 @@ A modern, high-performance restaurant web application built for a hiring technic
 
 ## 📸 Application Screenshots
 
-Save your screenshots in the [`public/screenshots/`](file:///e:/RestauarntTask/public/screenshots/) directory and link them here:
-
 | Landing Page | Menu & Customizations |
 | :---: | :---: |
 | ![Landing Page](./public/screenshots/home.png) | ![Menu Page](./public/screenshots/menu.png) |
