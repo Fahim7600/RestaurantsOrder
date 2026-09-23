@@ -37,14 +37,17 @@ export default function CartDrawer() {
     joinGroupSession,
     leaveGroupSession,
     switchActiveMember,
+    addMemberToSession,
     getPerMemberBreakdown,
   } = useCartStore();
 
   const [activeNotesId, setActiveNotesId] = useState<string | null>(null);
   const [showGroupModal, setShowGroupModal] = useState(false);
-  const [hostInputName, setHostInputName] = useState("Sarah (Host)");
+  const [hostInputName, setHostInputName] = useState("");
   const [joinCodeInput, setJoinCodeInput] = useState("");
-  const [joinNameInput, setJoinNameInput] = useState("Alex");
+  const [joinNameInput, setJoinNameInput] = useState("");
+  const [newMemberName, setNewMemberName] = useState("");
+  const [showAddMemberInput, setShowAddMemberInput] = useState(false);
   const [tab, setTab] = useState<"start" | "join">("start");
 
   useEffect(() => {
@@ -66,6 +69,14 @@ export default function CartDrawer() {
   const totalItems = getTotalItems();
   const totalPrice = getTotalPrice();
   const breakdown = getPerMemberBreakdown();
+
+  const handleAddNewMember = () => {
+    if (newMemberName.trim()) {
+      addMemberToSession(newMemberName.trim());
+      setNewMemberName("");
+      setShowAddMemberInput(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 animate-in fade-in duration-200">
@@ -119,38 +130,69 @@ export default function CartDrawer() {
 
         {/* Group Session Active Banner */}
         {groupSession && (
-          <div className="bg-gradient-to-r from-accent/20 via-primary/10 to-accent/20 border-b border-accent/30 p-3.5 px-6 flex items-center justify-between text-xs">
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-1.5 font-bold text-accent">
-                <Users className="w-3.5 h-3.5" />
-                <span>Group Order Session Active ({groupSession.code})</span>
+          <div className="bg-gradient-to-r from-accent/20 via-primary/10 to-accent/20 border-b border-accent/30 p-3.5 px-6 space-y-2 text-xs">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5 font-bold text-accent">
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Group Order Session ({groupSession.code})</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Active Diner:{" "}
+                  <span className="font-bold text-foreground">{groupSession.activeMember}</span>
+                </p>
               </div>
-              <p className="text-[11px] text-muted-foreground">
-                Ordering as:{" "}
-                <span className="font-bold text-foreground">{groupSession.activeMember}</span>
-              </p>
+
+              <div className="flex items-center gap-2">
+                <select
+                  value={groupSession.activeMember}
+                  onChange={(e) => switchActiveMember(e.target.value)}
+                  className="bg-background border border-accent/40 text-[11px] rounded-lg px-2 py-1 text-foreground font-semibold focus:outline-none"
+                >
+                  {groupSession.members.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  onClick={() => setShowAddMemberInput(!showAddMemberInput)}
+                  className="px-2 py-1 rounded-lg bg-accent/20 hover:bg-accent/30 text-accent font-semibold text-[11px] transition-colors"
+                  title="Add another dining companion to session"
+                >
+                  + Add Diner
+                </button>
+
+                <button
+                  onClick={leaveGroupSession}
+                  className="p-1 rounded-lg text-rose-400 hover:bg-rose-500/10 transition-colors"
+                  title="Leave Group Session"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <select
-                value={groupSession.activeMember}
-                onChange={(e) => switchActiveMember(e.target.value)}
-                className="bg-background border border-accent/40 text-[11px] rounded-lg px-2 py-1 text-foreground font-semibold focus:outline-none"
-              >
-                {groupSession.members.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={leaveGroupSession}
-                className="p-1 rounded-lg text-rose-400 hover:bg-rose-500/10 transition-colors"
-                title="Leave Group Session"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            {/* Inline Add Member Form */}
+            {showAddMemberInput && (
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="text"
+                  value={newMemberName}
+                  onChange={(e) => setNewMemberName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddNewMember()}
+                  placeholder="Enter companion name (e.g. Fahim)"
+                  className="flex-1 px-3 py-1 rounded-lg bg-background border border-accent/40 text-xs text-foreground focus:outline-none"
+                />
+                <button
+                  onClick={handleAddNewMember}
+                  className="px-3 py-1 rounded-lg bg-accent text-background font-bold text-xs"
+                >
+                  Add
+                </button>
+              </div>
+            )}
           </div>
         )}
 

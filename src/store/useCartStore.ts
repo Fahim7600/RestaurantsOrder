@@ -40,6 +40,7 @@ interface CartState {
   // Group Session Actions
   startGroupSession: (hostName?: string) => void;
   joinGroupSession: (code: string, memberName: string) => void;
+  addMemberToSession: (memberName: string) => void;
   leaveGroupSession: () => void;
   switchActiveMember: (memberName: string) => void;
 
@@ -82,12 +83,12 @@ export const useCartStore = create<CartState>()(
             code: randomCode,
             hostName,
             activeMember: hostName,
-            members: [hostName, "Alex", "Sarah"],
+            members: [hostName],
           },
           toast: {
             id: Date.now().toString(),
             message: `Group Session Started (${randomCode})`,
-            dishName: "Table Shared Cart",
+            dishName: `Host: ${hostName}`,
           },
         });
       },
@@ -97,12 +98,12 @@ export const useCartStore = create<CartState>()(
           ? code.toUpperCase()
           : `ROOM-${code}`;
         const current = get().groupSession;
-        const members = current ? [...new Set([...current.members, memberName])] : [memberName, "Host Diner"];
+        const members = current ? [...new Set([...current.members, memberName])] : [memberName];
 
         set({
           groupSession: {
             code: formattedCode,
-            hostName: current?.hostName || "Host Diner",
+            hostName: current?.hostName || memberName,
             activeMember: memberName,
             members,
           },
@@ -110,6 +111,26 @@ export const useCartStore = create<CartState>()(
             id: Date.now().toString(),
             message: `Joined Group Session (${formattedCode})`,
             dishName: `Ordering as ${memberName}`,
+          },
+        });
+      },
+
+      addMemberToSession: (memberName) => {
+        const current = get().groupSession;
+        if (!current) return;
+        const trimmed = memberName.trim();
+        if (!trimmed || current.members.includes(trimmed)) return;
+
+        set({
+          groupSession: {
+            ...current,
+            members: [...current.members, trimmed],
+            activeMember: trimmed,
+          },
+          toast: {
+            id: Date.now().toString(),
+            message: `Added companion ${trimmed}`,
+            dishName: `Switched active diner to ${trimmed}`,
           },
         });
       },
@@ -250,11 +271,11 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "flame-spice-cart",
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => safeJSONStorage),
       partialize: (state) => ({ items: state.items, groupSession: state.groupSession }),
       migrate: (persistedState, version) => {
-        if (version < 2 || !persistedState) {
+        if (version < 3 || !persistedState) {
           return { items: [], groupSession: null };
         }
         return persistedState as CartState;
