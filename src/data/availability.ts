@@ -1,74 +1,81 @@
-import { DayAvailability } from "@/lib/types";
+import { DayAvailability, TimeSlot } from "@/lib/types";
+import { BOOKING_WINDOW_DAYS, TABLE_COUNT } from "@/lib/config";
+import { toLocalISODate, addDays } from "@/lib/date";
 
-// Generate 14 days of realistic table availability starting from today
-function generate14DaysAvailability(): DayAvailability[] {
+/**
+ * Deterministic hash function for a string seed.
+ * Ensures server & client renders match 100% and refresh never changes seat counts.
+ */
+function seedHash(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+}
+
+const DEFAULT_SLOT_TIMES = ["12:00", "13:00", "14:00", "19:00", "20:00", "21:00"];
+
+/**
+ * Generate 14 days of deterministic table availability starting from the visitor's local today.
+ * Guarantee inside any 14-day window:
+ * - At least 2 fully booked slots (seatsLeft === 0)
+ * - At least 2 near-full slots (seatsLeft <= 4)
+ * - At least 1 entire day fully booked
+ */
+export function generateAvailabilityData(baseToday?: Date): DayAvailability[] {
+  const todayStr = toLocalISODate(baseToday || new Date());
   const result: DayAvailability[] = [];
-  const today = new Date();
 
-  // Pattern matrix to create varied, non-identical booking levels
-  const slotPatterns = [
-    // Pattern 0 (Peak Weekend style - heavy bookings, some fully booked)
-    [
-      { time: "12:00", totalSeats: 30, bookedSeats: 30 }, // FULL
-      { time: "13:00", totalSeats: 25, bookedSeats: 21 },
-      { time: "14:00", totalSeats: 20, bookedSeats: 8 },
-      { time: "19:00", totalSeats: 35, bookedSeats: 35 }, // FULL
-      { time: "20:00", totalSeats: 40, bookedSeats: 38 },
-      { time: "21:00", totalSeats: 30, bookedSeats: 14 },
-    ],
-    // Pattern 1 (Moderate weekday)
-    [
-      { time: "12:00", totalSeats: 24, bookedSeats: 12 },
-      { time: "13:00", totalSeats: 30, bookedSeats: 26 },
-      { time: "14:00", totalSeats: 20, bookedSeats: 4 },
-      { time: "19:00", totalSeats: 40, bookedSeats: 28 },
-      { time: "20:00", totalSeats: 40, bookedSeats: 40 }, // FULL
-      { time: "21:00", totalSeats: 25, bookedSeats: 9 },
-    ],
-    // Pattern 2 (Light day)
-    [
-      { time: "12:00", totalSeats: 30, bookedSeats: 6 },
-      { time: "13:00", totalSeats: 30, bookedSeats: 15 },
-      { time: "14:00", totalSeats: 20, bookedSeats: 2 },
-      { time: "19:00", totalSeats: 35, bookedSeats: 18 },
-      { time: "20:00", totalSeats: 35, bookedSeats: 22 },
-      { time: "21:00", totalSeats: 30, bookedSeats: 5 },
-    ],
-    // Pattern 3 (Dinner rush)
-    [
-      { time: "12:00", totalSeats: 20, bookedSeats: 8 },
-      { time: "13:00", totalSeats: 25, bookedSeats: 14 },
-      { time: "14:00", totalSeats: 25, bookedSeats: 5 },
-      { time: "19:00", totalSeats: 30, bookedSeats: 30 }, // FULL
-      { time: "20:00", totalSeats: 35, bookedSeats: 34 },
-      { time: "21:00", totalSeats: 30, bookedSeats: 28 },
-    ],
-  ];
+  for (let dayOffset = 0; dayOffset < BOOKING_WINDOW_DAYS; dayOffset++) {
+    const dateStr = addDays(todayStr, dayOffset);
+    const hash = seedHash(dateStr);
 
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
+    // Rule 1: Make day 2 (offset 2) completely fully booked for testing
+    const isEntireDayFull = dayOffset === 2;
 
-    // Format ISO string YYYY-MM-DD
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    const dateStr = `${year}-${month}-${day}`;
+    const slots: TimeSlot[] = DEFAULT_SLOT_TIMES.map((time, idx) => {
+      const slotHash = seedHash(`${dateStr}-${time}`);
+      const totalSeats = 30 + (slotHash % 11); // 30..40 seats total
 
-    const patternIndex = i % slotPatterns.length;
-    const slots = slotPatterns[patternIndex].map((s) => ({ ...s }));
+      if (isEntireDayFull) {
+        return { time, totalSeats, bookedSeats: totalSeats };
+      }
 
-    result.push({
-      date: dateStr,
-      slots,
+      // Rule 2 & 3: Guarantee specific fully-booked and near-full slots
+      // Day 0: 19:00 fully booked, 20:00 near full (3 seats left)
+      if (dayOffset === 0) {
+        if (time === "19:00") return { time, totalSeats, bookedSeats: totalSeats };
+        if (time === "20:00") return { time, totalSeats, bookedSeats: totalSeats - 3 };
+      }
+
+      // Day 1: 13:00 fully booked, 12:00 near full (2 seats left)
+      if (dayOffset === 1) {
+        if (time === "13:00") return { time, totalSeats, bookedSeats: totalSeats };
+        if (time === "12:00") return { time, totalSeats, bookedSeats: totalSeats - 2 };
+      }
+
+      // Deterministic fill calculation for other days
+      const fillPercentage = ((slotHash + idx * 17) % 65) + 20; // 20% to 84% fill
+      const bookedSeats = Math.min(
+        totalSeats - 1,
+        Math.floor((totalSeats * fillPercentage) / 100)
+      );
+
+      return { time, totalSeats, bookedSeats };
     });
+
+    result.push({ date: dateStr, slots });
   }
 
   return result;
 }
 
-export const AVAILABILITY_DATA: DayAvailability[] = generate14DaysAvailability();
+export const AVAILABILITY_DATA: DayAvailability[] = generateAvailabilityData();
 
 export function getAvailabilityForDate(dateStr: string): DayAvailability | undefined {
-  return AVAILABILITY_DATA.find((item) => item.date === dateStr);
+  const current = generateAvailabilityData();
+  return current.find((item) => item.date === dateStr);
 }

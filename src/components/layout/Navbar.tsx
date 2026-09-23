@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCartStore } from "@/store/useCartStore";
+import { useBookingStore } from "@/store/useBookingStore";
 import { Flame, Utensils, Menu, X, ShoppingBag, User } from "lucide-react";
 
 const navLinks = [
@@ -18,12 +19,14 @@ export default function Navbar() {
 
   const openDrawer = useCartStore((state) => state.openDrawer);
   const getTotalItems = useCartStore((state) => state.getTotalItems);
+  const hasActiveOffers = useBookingStore((state) => state.hasActiveOffers);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const totalItems = mounted ? getTotalItems() : 0;
+  const showOfferDot = mounted ? hasActiveOffers() : false;
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/90 border-b border-border/80 transition-all duration-300">
@@ -53,6 +56,9 @@ export default function Navbar() {
                 className="text-sm font-medium text-foreground/80 hover:text-accent transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all duration-300"
               >
                 {link.name}
+                {link.name === "Profile" && showOfferDot && (
+                  <span className="absolute -top-0.5 -right-2 w-2 h-2 rounded-full bg-accent animate-ping" />
+                )}
               </Link>
             ))}
           </nav>
@@ -98,10 +104,13 @@ export default function Navbar() {
 
             <Link
               href="/profile"
-              className="p-2 rounded-lg bg-secondary text-foreground"
+              className="p-2 rounded-lg bg-secondary text-foreground relative"
               aria-label="Profile"
             >
               <User className="w-5 h-5" />
+              {showOfferDot && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-accent animate-pulse" />
+              )}
             </Link>
 
             <button
@@ -123,9 +132,14 @@ export default function Navbar() {
               key={link.name}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-4 py-3 rounded-lg text-base font-medium text-foreground hover:bg-secondary hover:text-accent transition-colors"
+              className="block px-4 py-3 rounded-lg text-base font-medium text-foreground hover:bg-secondary hover:text-accent transition-colors flex items-center justify-between"
             >
-              {link.name}
+              <span>{link.name}</span>
+              {link.name === "Profile" && showOfferDot && (
+                <span className="px-2 py-0.5 rounded-full bg-accent/20 text-accent text-xs font-bold">
+                  Offer Ready
+                </span>
+              )}
             </Link>
           ))}
           <div className="pt-2 border-t border-border flex flex-col gap-2.5">

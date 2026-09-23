@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Flame, MapPin, Phone, Clock, Globe, Share2, Heart } from "lucide-react";
+import { OPENING_HOURS } from "@/lib/config";
 
 export default function Footer() {
   return (
@@ -69,11 +70,11 @@ export default function Footer() {
             <ul className="space-y-2 text-xs text-muted-foreground">
               <li className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                <span>Mon - Thu: 11:30 AM - 10:00 PM</span>
+                <span>Daily Service: {OPENING_HOURS.displayFull}</span>
               </li>
               <li className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                <span>Fri - Sun: 11:00 AM - 11:00 PM</span>
+                <Clock className="w-3.5 h-3.5 text-accent shrink-0" />
+                <span>Lunch ({OPENING_HOURS.displayLunch}) & Dinner ({OPENING_HOURS.displayDinner})</span>
               </li>
               <li className="pt-2 text-[11px] text-accent font-medium">
                 ★ Happy Hour Daily: 4:00 PM - 6:00 PM

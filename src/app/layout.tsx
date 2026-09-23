@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
 import Toast from "@/components/ui/Toast";
+import StoreSync from "@/components/layout/StoreSync";
 
 const displayFont = DM_Serif_Display({
   weight: "400",
@@ -32,6 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${displayFont.variable} ${sansFont.variable}`}>
       <body className="antialiased flex flex-col min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-white relative">
+        <StoreSync />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

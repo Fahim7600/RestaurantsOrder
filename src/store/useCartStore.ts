@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { safeJSONStorage } from "@/lib/storage";
 
 export interface CartItem {
   menuItemId: string;
@@ -20,22 +21,22 @@ interface CartState {
   items: CartItem[];
   isDrawerOpen: boolean;
   toast: ToastNotification | null;
-  
+
   // Drawer Actions
   openDrawer: () => void;
   closeDrawer: () => void;
   toggleDrawer: () => void;
-  
+
   // Cart Actions
   addItem: (item: { menuItemId: string; name: string; price: number; image: string }, qty?: number, notes?: string) => void;
   removeItem: (menuItemId: string) => void;
   updateQty: (menuItemId: string, qty: number) => void;
   updateNotes: (menuItemId: string, notes: string) => void;
   clearCart: () => void;
-  
+
   // Toast Action
   clearToast: () => void;
-  
+
   // Derived Helper Getters
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -131,9 +132,15 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "flame-spice-cart",
-      storage: createJSONStorage(() => localStorage),
-      // Only persist items in localStorage (drawer and toast state are transient)
+      version: 1,
+      storage: createJSONStorage(() => safeJSONStorage),
       partialize: (state) => ({ items: state.items }),
+      migrate: (persistedState, version) => {
+        if (version === 0 || !persistedState) {
+          return { items: [] };
+        }
+        return persistedState as CartState;
+      },
     }
   )
 );
